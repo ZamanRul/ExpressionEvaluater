@@ -55,6 +55,7 @@ public:
 
 
 	Var operator+( const Var& _rhs );
+	Var operator*( const Var& _rhs );
 
 private:
 

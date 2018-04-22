@@ -37,7 +37,7 @@ int main()
 
 	ParserPtr parser { std::make_shared< Parser >() };
 
-	std::string text { "666+(69.9+24l)" };
+	std::string text { "(2+3)*4" };
 	auto res = parser->parse( text );
 
 	if ( res )

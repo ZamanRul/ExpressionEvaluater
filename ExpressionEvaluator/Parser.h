@@ -41,7 +41,7 @@ public:
 
 		additive_op.add( "+", Operator::PLUS );
 
-		multiplicative_op.add( "*", Operator::TAG );
+		multiplicative_op.add( "*", Operator::MUL );
 
 		int_const = int_[ _val = boost::phoenix::bind( []( int i ) { return ExprFactory::create_const( i ); }, qi::_1 ) ];
 		uint_const = ( uint_ >> 'u' )[ _val = boost::phoenix::bind( []( unsigned int i ) { return ExprFactory::create_const( i ); }, qi::_1 ) ];
@@ -72,10 +72,14 @@ public:
 
 		expression = additive_expr.alias();
 
-		additive_expr =	primary_expr [_val = _1] >>
-						*( additive_op > primary_expr ) [ _val = boost::phoenix::bind( []( IExprPtr _left, IExprPtr _right ) {
+		additive_expr = multiplicative_expr[ _val = _1 ] >>
+						*( additive_op > multiplicative_expr ) [ _val = boost::phoenix::bind( []( IExprPtr _left, IExprPtr _right ) {
 																		return ExprFactory::create_binary( Operator::PLUS, _left, _right ); }, _val, qi::_2 ) ];
 		
+		multiplicative_expr = primary_expr[ _val = _1 ] >>
+						*( multiplicative_op > primary_expr )[ _val = boost::phoenix::bind( []( IExprPtr _left, IExprPtr _right ) {
+																		return ExprFactory::create_binary( Operator::MUL, _left, _right ); }, _val, qi::_2 ) ];
+
 		primary_expr = const_literal[ _val = _1 ] |
 						( '(' > expression > ')' )[ _val = _1 ];
 			
@@ -87,6 +91,7 @@ public:
 	{
 		expression.name( "expression" );	
 		additive_expr.name( "additive_expr" );
+		multiplicative_expr.name( "multiplicative_expr" );
 		primary_expr.name( "primary_expr" );
 		const_literal.name( "const_literal" );
 
@@ -105,6 +110,7 @@ public:
 						
 		qi::debug( expression );
 		qi::debug( additive_expr );
+		qi::debug( multiplicative_expr );
 		qi::debug( primary_expr );
 		qi::debug( const_literal );
 		qi::debug( string_const );
@@ -140,6 +146,7 @@ public:
 	qi::rule< Iterator, IExprPtr, Skipper > const_literal;
 
 	qi::rule< Iterator, IExprPtr, Skipper > additive_expr;
+	qi::rule< Iterator, IExprPtr, Skipper > multiplicative_expr;
 	qi::rule< Iterator, IExprPtr, Skipper > primary_expr;
 	qi::rule< Iterator, IExprPtr, Skipper > expression;
 

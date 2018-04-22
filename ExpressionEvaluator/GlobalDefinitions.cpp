@@ -90,6 +90,9 @@ std::string operator_to_string( Operator _operator )
 		case Operator::PLUS:
 			return std::string { "+" };
 
+		case Operator::MUL:
+			return std::string { "*" };
+
 		default:
 			return std::string { "" };
 	}

@@ -77,6 +77,11 @@ Var Var::operator+( const Var& _rhs )
 	return oper( Operator::PLUS, *this, _rhs );
 }
 
+Var Var::operator*( const Var& _rhs )
+{
+	return oper( Operator::MUL, *this, _rhs );
+}
+
 template< typename T >
 Var Var::arith_operations( Operator _operator, const T& _left, const T& _right )
 {
@@ -84,6 +89,9 @@ Var Var::arith_operations( Operator _operator, const T& _left, const T& _right )
 	{
 	case Operator::PLUS:
 		return Var { _left + _right };
+
+	case Operator::MUL:
+		return Var { _left * _right };
 	}
 
 	throw OperationNSY{ std::string { "Unknown arithmetic's operator" } };

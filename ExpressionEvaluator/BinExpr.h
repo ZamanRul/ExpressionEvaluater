@@ -22,6 +22,7 @@ public:
 protected:
 
 	Var evaluate_plus();
+	Var evaluate_mul();
 
 protected:
 

@@ -49,6 +49,10 @@ void BinExpr::evaluate()
 		result = evaluate_plus();
 		break;
 
+	case Operator::MUL:
+		result = evaluate_mul();
+		break;
+
 	default:
 		throw OperationNSY { std::string{ "Unknown binary operator" } };
 	}
@@ -90,4 +94,21 @@ Var BinExpr::evaluate_plus()
 		throw UnappropriateType { std::string { "BOOL" } };
 
 	return *m_left->get_value() + *m_right->get_value();
+}
+
+Var BinExpr::evaluate_mul()
+{
+	if ( m_operator != Operator::MUL )
+		throw OperationNSY { std::string{ "Operator mismatch" } };
+
+	VariableType left_type = m_left->get_type();
+	VariableType right_type = m_right->get_type();
+	
+	if ( left_type == VariableType::BOOL || right_type == VariableType::BOOL )
+		throw UnappropriateType { std::string{ "BOOL" } };
+
+	if ( left_type == VariableType::STRING || right_type == VariableType::STRING )
+		throw UnappropriateType { std::string{ "STRING" } };
+
+	return ( *m_left->get_value() ) * ( *m_right->get_value() );
 }
