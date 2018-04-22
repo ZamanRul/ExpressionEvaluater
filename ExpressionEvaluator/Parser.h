@@ -39,6 +39,10 @@ public:
 		qi::char_type char_;
 		qi::real_parser< double, strict_real_policies< double > > real_parser;
 
+		additive_op.add( "+", Operator::PLUS );
+
+		multiplicative_op.add( "*", Operator::TAG );
+
 		int_const = int_[ _val = boost::phoenix::bind( []( int i ) { return ExprFactory::create_const( i ); }, qi::_1 ) ];
 		uint_const = ( uint_ >> 'u' )[ _val = boost::phoenix::bind( []( unsigned int i ) { return ExprFactory::create_const( i ); }, qi::_1 ) ];
 		sint_const = short_[ _val = boost::phoenix::bind( []( short i ) { return ExprFactory::create_const( i ); }, qi::_1 ) ];
@@ -65,11 +69,16 @@ public:
 						bool_const[ _val = _1 ] |
 						string_const[ _val = _1 ];
 
-		expression = ( const_literal >> char_( '+' ) >> const_literal )[ _val = boost::phoenix::bind( []( IExprPtr _left, IExprPtr _right ) { 
-																	return ExprFactory::create_binary( Operator::PLUS, _left, _right ); }, qi::_1, qi::_3 ) ] |
-						const_literal[ _val =_1 ] |
-						( char_( '(' ) >> expression >> char_( ')' ) )[ _val = qi::_2 ];
 
+		expression = additive_expr.alias();
+
+		additive_expr =	primary_expr [_val = _1] >>
+						*( additive_op > primary_expr ) [ _val = boost::phoenix::bind( []( IExprPtr _left, IExprPtr _right ) {
+																		return ExprFactory::create_binary( Operator::PLUS, _left, _right ); }, _val, qi::_2 ) ];
+		
+		primary_expr = const_literal[ _val = _1 ] |
+						( '(' > expression > ')' )[ _val = _1 ];
+			
 		if ( m_debug_mode )
 			enable_debug();
 	}
@@ -77,6 +86,8 @@ public:
 	void enable_debug()
 	{
 		expression.name( "expression" );	
+		additive_expr.name( "additive_expr" );
+		primary_expr.name( "primary_expr" );
 		const_literal.name( "const_literal" );
 
 		bool_const.name( "bool_const" );
@@ -93,6 +104,8 @@ public:
 		sint_const.name( "sint_const" );
 						
 		qi::debug( expression );
+		qi::debug( additive_expr );
+		qi::debug( primary_expr );
 		qi::debug( const_literal );
 		qi::debug( string_const );
 		qi::debug( bool_const );
@@ -106,6 +119,10 @@ public:
 		qi::debug( usint_const );
 		qi::debug( sint_const );
 	}
+	
+	qi::symbols< char, Operator > additive_op;
+	qi::symbols< char, Operator > multiplicative_op;
+
 
 	qi::rule< Iterator, IExprPtr, Skipper > lreal_const;
 	qi::rule< Iterator, IExprPtr, Skipper > real_const;
@@ -121,8 +138,10 @@ public:
 	qi::rule< Iterator, IExprPtr, Skipper > number_const;
 
 	qi::rule< Iterator, IExprPtr, Skipper > const_literal;
-	qi::rule< Iterator, IExprPtr, Skipper > expression;
 
+	qi::rule< Iterator, IExprPtr, Skipper > additive_expr;
+	qi::rule< Iterator, IExprPtr, Skipper > primary_expr;
+	qi::rule< Iterator, IExprPtr, Skipper > expression;
 
 	bool m_debug_mode;
 };
