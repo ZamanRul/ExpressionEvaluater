@@ -30,8 +30,9 @@ protected:
 	
 public:
 
-	ScriptGrammar() :
-		ScriptGrammar::base_type { expression }
+	ScriptGrammar( bool _debug_mode = false ) :
+		ScriptGrammar::base_type { expression },
+		m_debug_mode { _debug_mode }
 	{       
 		using qi::_val;
 
@@ -56,23 +57,30 @@ public:
 						usint_const[ _val = _1 ] |
 						sint_const[ _val = _1 ];
 
+		bool_const = bool_[ _val = boost::phoenix::bind( []( bool i ) { return ExprFactory::create_const( i ); }, qi::_1 ) ];
+
+		string_const = ( '"' >> *~char_( '"' ) >> '"' )[ _val = boost::phoenix::bind( []( std::vector< char > i ) { return ExprFactory::create_const( std::string { i.begin(), i.end() } ); }, qi::_1 ) ];
+
 		const_literal = number_const[ _val = _1 ] |
-						bool_[ _val = boost::phoenix::bind( []( bool i ) { return ExprFactory::create_const( i ); }, qi::_1 ) ] |
-						( '"' >> *~char_( '"' ) >> '"' )[ _val = boost::phoenix::bind( []( std::vector< char > i ) { return ExprFactory::create_const( std::string { i.begin(), i.end() } ); }, qi::_1 ) ];
+						bool_const[ _val = _1 ] |
+						string_const[ _val = _1 ];
 
 		expression = ( const_literal >> char_( '+' ) >> const_literal )[ _val = boost::phoenix::bind( []( IExprPtr _left, IExprPtr _right ) { 
 																	return ExprFactory::create_binary( Operator::PLUS, _left, _right ); }, qi::_1, qi::_3 ) ] |
 						const_literal[ _val =_1 ] |
 						( char_( '(' ) >> expression >> char_( ')' ) )[ _val = qi::_2 ];
 
-
-		enable_debug();
+		if ( m_debug_mode )
+			enable_debug();
 	}
 
 	void enable_debug()
 	{
 		expression.name( "expression" );	
 		const_literal.name( "const_literal" );
+
+		bool_const.name( "bool_const" );
+		string_const.name( "string_const" );
 		number_const.name( "number_const" );
 
 		lreal_const.name( "lreal_const" );
@@ -83,11 +91,11 @@ public:
 		int_const.name( "int_const" );
 		usint_const.name( "usint_const" );
 		sint_const.name( "sint_const" );
-
-		qi::on_error< qi::fail >( expression, std::cout << std::endl << "Error! Expecting " << _4 << std::endl );
-				
+						
 		qi::debug( expression );
 		qi::debug( const_literal );
+		qi::debug( string_const );
+		qi::debug( bool_const );
 		qi::debug( number_const );
 		qi::debug( lreal_const );
 		qi::debug( real_const );
@@ -108,10 +116,15 @@ public:
 	qi::rule< Iterator, IExprPtr, Skipper > usint_const;
 	qi::rule< Iterator, IExprPtr, Skipper > sint_const;
 
+	qi::rule< Iterator, IExprPtr, Skipper > bool_const;
+	qi::rule< Iterator, IExprPtr, Skipper > string_const;
 	qi::rule< Iterator, IExprPtr, Skipper > number_const;
+
 	qi::rule< Iterator, IExprPtr, Skipper > const_literal;
 	qi::rule< Iterator, IExprPtr, Skipper > expression;
 
+
+	bool m_debug_mode;
 };
 
 

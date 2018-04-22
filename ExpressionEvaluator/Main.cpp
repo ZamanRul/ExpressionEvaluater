@@ -35,15 +35,13 @@ int main()
 
 	z->accept( evaluater );
 
-	ParserPtr parser{ std::make_shared< Parser >() };
+	ParserPtr parser { std::make_shared< Parser >() };
 
-	std::string text{ "\"(666+69.9)\"" };
+	std::string text{ "(666+69.9)+23" };
 	auto res = parser->parse( text );
 
 	if ( res )
-		std::cout << res->to_string();
-
-	res->accept( evaluater );
+		res->accept( evaluater );
 
 	return 0;
 }
