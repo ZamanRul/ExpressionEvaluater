@@ -82,7 +82,7 @@ Const::Const( double _value ) :
 
 void Const::accept( IVisitorPtr _visitor )
 {
-	_visitor->visit( this );
+	_visitor->visit( shared_from_this() );
 }
 
 std::string Const::to_string()

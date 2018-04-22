@@ -15,7 +15,7 @@ void UnExpr::accept( IVisitorPtr _visitor )
 	if ( m_child )
 		m_child->accept( _visitor );
 
-	_visitor->visit( this );
+	_visitor->visit( shared_from_this() );
 }
 
 std::string UnExpr::to_string()

@@ -3,7 +3,7 @@
 
 #include "BaseExpr.h"
 
-class BinExpr : public BaseExpr
+class BinExpr : public BaseExpr, public std::enable_shared_from_this< BinExpr >
 {
 public:
 

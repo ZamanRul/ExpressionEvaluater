@@ -22,7 +22,7 @@ void TriExpr::accept( IVisitorPtr _visitor )
 	if ( m_third )
 		m_third->accept( _visitor );
 
-	_visitor->visit( this );
+	_visitor->visit( shared_from_this() );
 }
 
 std::string TriExpr::to_string()

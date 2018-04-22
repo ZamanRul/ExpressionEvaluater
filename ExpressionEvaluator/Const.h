@@ -3,7 +3,7 @@
 #include "BaseExpr.h"
 
 
-class Const : public BaseExpr
+class Const : public BaseExpr, public std::enable_shared_from_this< Const >
 {
 public:
 

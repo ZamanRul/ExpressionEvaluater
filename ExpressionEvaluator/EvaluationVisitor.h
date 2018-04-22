@@ -28,10 +28,10 @@ public:
 
 	EvaluationVisitor( bool _enable_logging );
 
-	void visit( Const* _ptr ) override;
-	void visit( UnExpr* _ptr ) override;
-	void visit( BinExpr* _ptr ) override;
-	void visit( TriExpr* _ptr ) override;
+	void visit( ConstPtr _ptr ) override;
+	void visit( UnExprPtr _ptr ) override;
+	void visit( BinExprPtr _ptr ) override;
+	void visit( TriExprPtr _ptr ) override;
 
 protected:
 

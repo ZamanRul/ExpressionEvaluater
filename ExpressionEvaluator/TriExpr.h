@@ -4,7 +4,7 @@
 #include "BaseExpr.h"
 
 
-class TriExpr : public BaseExpr
+class TriExpr : public BaseExpr, public std::enable_shared_from_this< TriExpr >
 {
 public:
 

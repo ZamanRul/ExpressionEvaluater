@@ -19,7 +19,7 @@ void BinExpr::accept( IVisitorPtr _visitor )
 	if ( m_right )
 		m_right->accept( _visitor );
 
-	_visitor->visit( this );
+	_visitor->visit( shared_from_this() );
 }
 
 std::string BinExpr::to_string()
