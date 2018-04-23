@@ -66,8 +66,15 @@ VariableType Var::get_type() const
 
 std::string Var::to_string()
 {
+	using namespace boost;
+
 	if ( m_type == VariableType::UNDEFINED )
 		return std::string { "UNDEFINED" };
+
+	if ( m_type == VariableType::STRING )
+		return str( format( "\"%1%\"" )
+			% boost::get< std::string >( m_value )
+		);
 
 	return boost::lexical_cast< std::string >( m_value );
 }
