@@ -1,17 +1,11 @@
 #include <iostream>
 
+#include "ErrorHandling.h"
 #include "TagManager.h"
 #include "ExprFactory.h"
 #include "Parser.h"
 
 #include "EvaluationVisitor.h"
-
-/*
-	TODO:
-
-	- refaktoryzacja visitors - wyrugowanie naked ptr
-
-*/
 
 int main()
 {
@@ -20,28 +14,32 @@ int main()
 		VariableType::LREAL,
 		69.9
 	} );
-
-	ConstPtr l { ExprFactory::create_const( 6.1f ) };
-	ConstPtr r { ExprFactory::create_const( 666ul ) };
-
-	BinExprPtr e { ExprFactory::create_binary( Operator::PLUS, l ,r ) };
-
-	ConstPtr t { ExprFactory::create_const( std::string { "::local::my_int" } ) };
-	UnExprPtr y { ExprFactory::create_unary( Operator::TAG, t ) };
-	
-	BinExprPtr z { ExprFactory::create_binary( Operator::PLUS, y , e ) };
-
+		
 	EvaluationVisitorPtr evaluater { std::make_shared< EvaluationVisitor >( true ) };
-
-	z->accept( evaluater );
-
 	ParserPtr parser { std::make_shared< Parser >() };
 
-	std::string text { "20%8" };
-	auto res = parser->parse( text );
+	std::string line;
 
-	if ( res )
-		res->accept( evaluater );
+	while ( std::getline( std::cin, line ) )
+	{
+		try
+		{
+			if ( line.empty() || line[ 0 ] == 'q' || line[ 0 ] == 'Q' )
+				break;
+
+			auto res = parser->parse( line );
+
+			if ( res )
+				res->accept( evaluater );
+			else
+				std::cout << "Unable to parse given line: " << line << std::endl;
+
+		}
+		catch ( const EEException& _exception )
+		{
+			std::cout << "Exception! " << _exception.what() << std::endl;
+		}
+	}
 
 	return 0;
 }

@@ -160,8 +160,6 @@ Var Var::oper_right( Operator _operator, const Var& _left, const Var& _right )
 	{
 	case VariableType::BOOL:
 		return oper_internal< left_type, bool >( _operator, _left, _right );
-	//case VariableType::STRING:														// String should not be used in binary expressions except '+'
-	//	return oper_internal< left_type, std::string >( _operator, _left, _right );
 	case VariableType::SINT:
 		return oper_internal< left_type, short int >( _operator, _left, _right );
 	case VariableType::USINT:
@@ -189,8 +187,6 @@ Var Var::oper( Operator _operator, const Var& _left, const Var& _right )
 	{
 	case VariableType::BOOL:
 		return oper_right< bool >( _operator, _left, _right );
-	//case VariableType::STRING:														// String should not be used in binary expressions except '+'
-	//	return oper_right< std::string >( _operator, _left, _right );
 	case VariableType::SINT:
 		return oper_right< short int >( _operator, _left, _right );
 	case VariableType::USINT:

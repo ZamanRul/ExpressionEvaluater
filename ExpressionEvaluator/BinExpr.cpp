@@ -97,7 +97,7 @@ Var BinExpr::evaluate_plus()
 	if ( left_type == VariableType::STRING && right_type == VariableType::STRING )
 	{
 		auto left_string = m_left->get_value()->get_value< std::string >();
-		auto right_string = m_left->get_value()->get_value< std::string >();
+		auto right_string = m_right->get_value()->get_value< std::string >();
 
 		return Var { left_string.append( right_string ) };
 	}
@@ -176,6 +176,9 @@ Var BinExpr::evaluate_modulo()
 
 	if ( !is_integer( left_type ) || !is_integer( right_type ) )
 		throw ModuloBadArguments { type_to_string( left_type ), type_to_string( right_type ) };
+
+	if ( MathHelper::is_zero( m_right->get_value() ) )
+		throw DivisionByZero {};
 
 	return ( *m_left->get_value() ) % ( *m_right->get_value() );
 }
