@@ -44,3 +44,17 @@ public:
 
 	OperationNSY( const std::string& _description );
 };
+
+class DivisionByZero : public EEException
+{
+public:
+
+	DivisionByZero();
+};
+
+class ModuloBadArguments : public EEException
+{
+public:
+
+	ModuloBadArguments( const std::string& _type_1, const std::string& _type_2 );
+};

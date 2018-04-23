@@ -79,6 +79,35 @@ std::string type_to_string( VariableType _type )
 	}
 }
 
+bool is_integer( VariableType _type )
+{
+	switch ( _type )
+	{
+	case VariableType::SINT:
+	case VariableType::USINT:
+	case VariableType::INT:
+	case VariableType::UINT:
+	case VariableType::LINT:
+	case VariableType::ULINT:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+bool is_floating( VariableType _type )
+{
+	switch ( _type )
+	{
+	case VariableType::REAL:
+	case VariableType::LREAL:
+		return true;
+
+	default:
+		return false;
+	}
+}
 
 std::string operator_to_string( Operator _operator )
 {
@@ -90,10 +119,31 @@ std::string operator_to_string( Operator _operator )
 		case Operator::PLUS:
 			return std::string { "+" };
 
+		case Operator::MINUS:
+			return std::string { "-" };
+
 		case Operator::MUL:
 			return std::string { "*" };
 
+		case Operator::DIV:
+			return std::string { "/" };
+
+		case Operator::MOD:
+			return std::string { "%" };
+
 		default:
 			return std::string { "" };
+	}
+}
+
+bool is_only_integral_operator( Operator _operator )
+{
+	switch ( _operator )
+	{
+	case Operator::MOD:
+		return true;
+
+	default:
+		return false;
 	}
 }

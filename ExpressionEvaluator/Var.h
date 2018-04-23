@@ -8,7 +8,6 @@
 #include <boost\variant.hpp>
 
 
-
 class Var
 {
 public:
@@ -55,12 +54,20 @@ public:
 
 
 	Var operator+( const Var& _rhs );
+	Var operator-( const Var& _rhs );
 	Var operator*( const Var& _rhs );
+	Var operator/( const Var& _rhs );
+	Var operator%( const Var& _rhs );
 
 private:
 
 	template< typename left_type, typename right_type >
-	Var oper_internal( Operator _operator, const Var& _left, const Var& _right );
+	auto oper_internal( Operator _operator, const Var& _left, const Var& _right )
+		-> typename std::enable_if< !std::is_floating_point< left_type >::value && !std::is_floating_point< right_type >::value, Var >::type;
+
+	template< typename left_type, typename right_type >
+	auto oper_internal( Operator _operator, const Var& _left, const Var& _right )
+		-> typename std::enable_if< std::is_floating_point< left_type >::value || std::is_floating_point< right_type >::value, Var >::type;
 
 	template< typename left_type >
 	Var oper_right( Operator _operator, const Var& _left, const Var& _right );
@@ -69,6 +76,9 @@ private:
 
 	template< typename T >
 	Var arith_operations( Operator _operator, const T& _left, const T& _right );
+
+	template< typename T >
+	Var arith_operations_only_int( Operator _operator, const T& _left, const T& _right );
 
 private:
 
@@ -84,3 +94,11 @@ Target get_as( const Var& _object )
 }
 
 using VarPtr = Var::pointer_type;
+
+
+class MathHelper
+{
+public:
+
+	static bool is_zero( VarPtr _ptr );
+};

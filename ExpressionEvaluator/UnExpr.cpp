@@ -53,7 +53,7 @@ void UnExpr::evaluate()
 		m_type = result.get_type();
 		m_value = std::make_shared< Var >( result );
 
-		if ( m_child->is_const() )
+		if ( m_child->is_const() && m_operator != Operator::TAG )
 			m_is_const = true;
 	}
 }

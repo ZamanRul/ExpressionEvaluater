@@ -77,10 +77,26 @@ Var Var::operator+( const Var& _rhs )
 	return oper( Operator::PLUS, *this, _rhs );
 }
 
+Var Var::operator-( const Var& _rhs )
+{
+	return oper( Operator::MINUS, *this, _rhs );
+}
+
 Var Var::operator*( const Var& _rhs )
 {
 	return oper( Operator::MUL, *this, _rhs );
 }
+
+Var Var::operator/( const Var& _rhs )
+{
+	return oper( Operator::DIV, *this, _rhs );
+}
+
+Var Var::operator%( const Var& _rhs )
+{
+	return oper( Operator::MOD, *this, _rhs );
+}
+
 
 template< typename T >
 Var Var::arith_operations( Operator _operator, const T& _left, const T& _right )
@@ -90,17 +106,49 @@ Var Var::arith_operations( Operator _operator, const T& _left, const T& _right )
 	case Operator::PLUS:
 		return Var { _left + _right };
 
+	case Operator::MINUS:
+		return Var { _left - _right };
+
 	case Operator::MUL:
 		return Var { _left * _right };
+
+	case Operator::DIV:
+		return Var { _left / _right };
 	}
 
 	throw OperationNSY{ std::string { "Unknown arithmetic's operator" } };
 }
 
-template< typename left_type, typename right_type >
-Var Var::oper_internal( Operator _operator, const Var& _left, const Var& _right )
+template< typename T >
+Var Var::arith_operations_only_int( Operator _operator, const T& _left, const T& _right )
 {
-	using common_type = typename std::common_type< left_type, right_type>::type;
+	switch ( _operator )
+	{
+		case Operator::MOD:
+			return Var { _left % _right };
+	}
+
+	throw OperationNSY{ std::string{ "Unknown arithmetic's operator" } };
+}
+
+
+template< typename left_type, typename right_type >
+auto Var::oper_internal( Operator _operator, const Var& _left, const Var& _right )
+	-> typename std::enable_if< !std::is_floating_point< left_type >::value && !std::is_floating_point< right_type >::value, Var >::type
+{
+	using common_type = typename std::common_type< left_type, right_type >::type;
+
+	if ( is_only_integral_operator( _operator ) )
+		return arith_operations_only_int( _operator, get_as< common_type, left_type >( _left ), get_as< common_type, right_type >( _right ) );
+	else
+		return arith_operations( _operator, get_as< common_type, left_type >( _left ), get_as< common_type, right_type >( _right ) );
+}
+
+template< typename left_type, typename right_type >
+auto Var::oper_internal( Operator _operator, const Var& _left, const Var& _right )
+	-> typename std::enable_if< std::is_floating_point< left_type >::value || std::is_floating_point< right_type >::value, Var >::type
+{
+	using common_type = typename std::common_type< left_type, right_type >::type;
 
 	return arith_operations( _operator, get_as< common_type, left_type >( _left ), get_as< common_type, right_type >( _right ) );
 }
@@ -162,4 +210,49 @@ Var Var::oper( Operator _operator, const Var& _left, const Var& _right )
 	}
 
 	throw UnappropriateType { type_to_string( _left.get_type() ) };
+}
+
+
+bool MathHelper::is_zero( VarPtr _ptr )
+{
+	if ( _ptr )
+	{
+		VariableType type = _ptr->get_type();
+		
+		switch ( type )
+		{
+
+		case VariableType::SINT:
+			return _ptr->get_value< short int >() == 0;
+
+		case VariableType::USINT:
+			return _ptr->get_value< unsigned short int >() == 0;
+
+		case VariableType::INT:
+			return _ptr->get_value< int >() == 0;
+
+		case VariableType::UINT:
+			return _ptr->get_value< unsigned int >() == 0;
+
+		case VariableType::LINT:
+			return _ptr->get_value< long int >() == 0;
+
+		case VariableType::ULINT:
+			return _ptr->get_value< unsigned long int >() == 0;
+
+		case VariableType::REAL:
+			{
+				const float epsilon_float = std::numeric_limits< float >::epsilon();
+				return fabs( _ptr->get_value< float >() ) < epsilon_float;
+			}
+
+		case VariableType::LREAL:
+			{
+				const double epsilon_double = std::numeric_limits< double >::epsilon();
+				return fabs( _ptr->get_value< double >() ) < epsilon_double;
+			}
+		}
+	}
+
+	return false;
 }

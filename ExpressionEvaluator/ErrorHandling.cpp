@@ -64,3 +64,18 @@ OperationNSY::OperationNSY( const std::string& _description )
 		% _description
 	);
 }
+
+DivisionByZero::DivisionByZero()
+{
+	m_message = std::string { "Division by zero" };
+}
+
+ModuloBadArguments::ModuloBadArguments( const std::string& _type_1, const std::string& _type_2 )
+{
+	using namespace boost;
+
+	m_message = str( format { "Operation modulo bad arguments: %1%, %2%" }
+		% _type_1
+		% _type_2
+	);
+}

@@ -22,7 +22,10 @@ public:
 protected:
 
 	Var evaluate_plus();
+	Var evaluate_minus();
 	Var evaluate_mul();
+	Var evaluate_div();
+	Var evaluate_modulo();
 
 protected:
 

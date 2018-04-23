@@ -5,10 +5,10 @@
 
 
 BinExpr::BinExpr( Operator _operator, IExprPtr _left, IExprPtr _right ) :
-	BaseExpr{},
-	m_operator{ _operator },
-	m_left{ _left },
-	m_right{ _right }
+	BaseExpr {},
+	m_operator { _operator },
+	m_left { _left },
+	m_right { _right }
 {}
 
 void BinExpr::accept( IVisitorPtr _visitor )
@@ -49,8 +49,20 @@ void BinExpr::evaluate()
 		result = evaluate_plus();
 		break;
 
+	case Operator::MINUS:
+		result = evaluate_minus();
+		break;
+
 	case Operator::MUL:
 		result = evaluate_mul();
+		break;
+
+	case Operator::DIV:
+		result = evaluate_div();
+		break;
+
+	case Operator::MOD:
+		result = evaluate_modulo();
 		break;
 
 	default:
@@ -96,6 +108,26 @@ Var BinExpr::evaluate_plus()
 	return *m_left->get_value() + *m_right->get_value();
 }
 
+Var BinExpr::evaluate_minus()
+{
+	if ( m_operator != Operator::MINUS )
+		throw OperationNSY { std::string { "Operator mismatch" } };
+
+	VariableType left_type = m_left->get_type();
+	VariableType right_type = m_right->get_type();
+
+
+	if ( left_type == VariableType::STRING || right_type == VariableType::STRING )
+	{
+		throw TypeMismatch { type_to_string( left_type ), type_to_string( right_type ) };
+	}
+
+	if ( left_type == VariableType::BOOL || right_type == VariableType::BOOL )
+		throw UnappropriateType { std::string { "BOOL" } };
+
+	return *m_left->get_value() - *m_right->get_value();
+}
+
 Var BinExpr::evaluate_mul()
 {
 	if ( m_operator != Operator::MUL )
@@ -111,4 +143,39 @@ Var BinExpr::evaluate_mul()
 		throw UnappropriateType { std::string{ "STRING" } };
 
 	return ( *m_left->get_value() ) * ( *m_right->get_value() );
+}
+
+Var BinExpr::evaluate_div()
+{
+	if ( m_operator != Operator::DIV )
+		throw OperationNSY { std::string{ "Operator mismatch" } };
+
+	VariableType left_type = m_left->get_type();
+	VariableType right_type = m_right->get_type();
+
+	if ( left_type == VariableType::BOOL || right_type == VariableType::BOOL )
+		throw UnappropriateType { std::string { "BOOL" } };
+
+	if ( left_type == VariableType::STRING || right_type == VariableType::STRING )
+		throw UnappropriateType { std::string { "STRING" } };
+	
+	if ( MathHelper::is_zero( m_right->get_value() ) )
+		throw DivisionByZero {};
+
+	return ( *m_left->get_value() ) / ( *m_right->get_value() );
+}
+
+
+Var BinExpr::evaluate_modulo()
+{
+	if ( m_operator != Operator::MOD )
+		throw OperationNSY { std::string { "Operator mismatch" } };
+
+	VariableType left_type = m_left->get_type();
+	VariableType right_type = m_right->get_type();
+
+	if ( !is_integer( left_type ) || !is_integer( right_type ) )
+		throw ModuloBadArguments { type_to_string( left_type ), type_to_string( right_type ) };
+
+	return ( *m_left->get_value() ) % ( *m_right->get_value() );
 }

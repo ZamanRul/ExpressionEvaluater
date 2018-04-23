@@ -40,8 +40,11 @@ public:
 		qi::real_parser< double, strict_real_policies< double > > real_parser;
 
 		additive_op.add( "+", Operator::PLUS );
+		additive_op.add( "-", Operator::MINUS );
 
 		multiplicative_op.add( "*", Operator::MUL );
+		multiplicative_op.add( "/", Operator::DIV );
+		multiplicative_op.add( "%", Operator::MOD );
 
 		int_const = int_[ _val = boost::phoenix::bind( []( int i ) { return ExprFactory::create_const( i ); }, qi::_1 ) ];
 		uint_const = ( uint_ >> 'u' )[ _val = boost::phoenix::bind( []( unsigned int i ) { return ExprFactory::create_const( i ); }, qi::_1 ) ];
@@ -73,12 +76,12 @@ public:
 		expression = additive_expr.alias();
 
 		additive_expr = multiplicative_expr[ _val = _1 ] >>
-						*( additive_op > multiplicative_expr ) [ _val = boost::phoenix::bind( []( IExprPtr _left, IExprPtr _right ) {
-																		return ExprFactory::create_binary( Operator::PLUS, _left, _right ); }, _val, qi::_2 ) ];
+						*( additive_op > multiplicative_expr ) [ _val = boost::phoenix::bind( []( Operator _operator, IExprPtr _left, IExprPtr _right ) {
+																		return ExprFactory::create_binary( _operator, _left, _right ); }, qi::_1, _val, qi::_2 ) ];
 		
 		multiplicative_expr = primary_expr[ _val = _1 ] >>
-						*( multiplicative_op > primary_expr )[ _val = boost::phoenix::bind( []( IExprPtr _left, IExprPtr _right ) {
-																		return ExprFactory::create_binary( Operator::MUL, _left, _right ); }, _val, qi::_2 ) ];
+						*( multiplicative_op > primary_expr )[ _val = boost::phoenix::bind( []( Operator _operator, IExprPtr _left, IExprPtr _right ) {
+																		return ExprFactory::create_binary( _operator, _left, _right ); }, qi::_1, _val, qi::_2 ) ];
 
 		primary_expr = const_literal[ _val = _1 ] |
 						( '(' > expression > ')' )[ _val = _1 ];
