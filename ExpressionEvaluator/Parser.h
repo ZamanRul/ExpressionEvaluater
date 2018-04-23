@@ -62,8 +62,8 @@ public:
 		number_const = ulint_const[ _val = _1 ] |
 						uint_const[ _val = _1 ] |
 						lint_const[ _val = _1 ] |
-						lreal_const[ _val = _1 ] |
 						real_const[ _val = _1 ] |
+						lreal_const[ _val = _1 ] |						
 						int_const[ _val = _1 ] |
 						usint_const[ _val = _1 ] |
 						sint_const[ _val = _1 ];
