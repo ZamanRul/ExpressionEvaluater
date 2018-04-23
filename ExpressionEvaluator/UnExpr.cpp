@@ -44,6 +44,14 @@ void UnExpr::evaluate()
 		result = evaluate_tag();
 		break;
 
+	case Operator::POS:
+		result = evaluate_pos();
+		break;
+
+	case Operator::NEG:
+		result = evaluate_neg();
+		break;
+
 	default:
 		throw OperationNSY { std::string{ "Unknown unary operator" } };
 	}
@@ -107,4 +115,36 @@ Var UnExpr::evaluate_tag()
 	default:
 		throw UnappropriateType { std::string{ "UNDEFINED" } };
 	}
+}
+
+Var UnExpr::evaluate_pos()
+{
+	if ( m_operator != Operator::POS )
+		throw OperationNSY { std::string { "Operator mismatch" } };
+
+	VariableType child_type = m_child->get_type();
+	
+	if ( child_type == VariableType::STRING )
+		throw UnappropriateType { std::string { "STRING" } };
+
+	if ( child_type == VariableType::BOOL )
+		throw UnappropriateType { std::string { "BOOL" } };
+
+	return +( *m_child->get_value() );
+}
+
+Var UnExpr::evaluate_neg()
+{
+	if ( m_operator != Operator::NEG )
+		throw OperationNSY { std::string { "Operator mismatch" } };
+
+	VariableType child_type = m_child->get_type();
+	
+	if ( child_type == VariableType::STRING )
+		throw UnappropriateType { std::string { "STRING" } };
+
+	if ( child_type == VariableType::BOOL )
+		throw UnappropriateType { std::string { "BOOL" } };
+
+	return -( *m_child->get_value() );
 }

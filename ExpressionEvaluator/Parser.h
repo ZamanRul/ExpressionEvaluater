@@ -43,6 +43,9 @@ public:
 		additive_op.add( "+", Operator::PLUS );
 		additive_op.add( "-", Operator::MINUS );
 
+		unary_op.add( "+", Operator::POS );
+		unary_op.add( "-", Operator::NEG );
+
 		multiplicative_op.add( "*", Operator::MUL );
 		multiplicative_op.add( "/", Operator::DIV );
 		multiplicative_op.add( "%", Operator::MOD );
@@ -80,9 +83,13 @@ public:
 						*( additive_op > multiplicative_expr ) [ _val = boost::phoenix::bind( []( Operator _operator, IExprPtr _left, IExprPtr _right ) {
 																		return ExprFactory::create_binary( _operator, _left, _right ); }, qi::_1, _val, qi::_2 ) ];
 		
-		multiplicative_expr = primary_expr[ _val = _1 ] >>
-						*( multiplicative_op > primary_expr )[ _val = boost::phoenix::bind( []( Operator _operator, IExprPtr _left, IExprPtr _right ) {
+		multiplicative_expr = unary_expr[ _val = _1 ] >>
+						*( multiplicative_op > unary_expr)[ _val = boost::phoenix::bind( []( Operator _operator, IExprPtr _left, IExprPtr _right ) {
 																		return ExprFactory::create_binary( _operator, _left, _right ); }, qi::_1, _val, qi::_2 ) ];
+
+		unary_expr = primary_expr [ _val = _1 ] |
+						( unary_op > primary_expr )[ _val = boost::phoenix::bind( [](Operator _operator, IExprPtr _child ) {
+																		return ExprFactory::create_unary( _operator, _child ); }, qi::_1, qi::_2 ) ];
 
 		primary_expr = const_literal[ _val = _1 ] |
 						( '(' > expression > ')' )[ _val = _1 ];
@@ -96,6 +103,7 @@ public:
 		expression.name( "expression" );	
 		additive_expr.name( "additive_expr" );
 		multiplicative_expr.name( "multiplicative_expr" );
+		unary_expr.name( "unary_expr" );
 		primary_expr.name( "primary_expr" );
 		const_literal.name( "const_literal" );
 
@@ -115,6 +123,7 @@ public:
 		qi::debug( expression );
 		qi::debug( additive_expr );
 		qi::debug( multiplicative_expr );
+		qi::debug( unary_expr );
 		qi::debug( primary_expr );
 		qi::debug( const_literal );
 		qi::debug( string_const );
@@ -132,6 +141,7 @@ public:
 	
 	qi::symbols< char, Operator > additive_op;
 	qi::symbols< char, Operator > multiplicative_op;
+	qi::symbols< char, Operator > unary_op;
 
 
 	qi::rule< Iterator, IExprPtr, Skipper > lreal_const;
@@ -152,6 +162,7 @@ public:
 	qi::rule< Iterator, IExprPtr, Skipper > additive_expr;
 	qi::rule< Iterator, IExprPtr, Skipper > multiplicative_expr;
 	qi::rule< Iterator, IExprPtr, Skipper > primary_expr;
+	qi::rule< Iterator, IExprPtr, Skipper > unary_expr;
 	qi::rule< Iterator, IExprPtr, Skipper > expression;
 
 	bool m_debug_mode;

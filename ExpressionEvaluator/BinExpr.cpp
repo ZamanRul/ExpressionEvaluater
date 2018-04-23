@@ -118,9 +118,7 @@ Var BinExpr::evaluate_minus()
 
 
 	if ( left_type == VariableType::STRING || right_type == VariableType::STRING )
-	{
-		throw TypeMismatch { type_to_string( left_type ), type_to_string( right_type ) };
-	}
+		throw UnappropriateType { std::string { "STRING" } };
 
 	if ( left_type == VariableType::BOOL || right_type == VariableType::BOOL )
 		throw UnappropriateType { std::string { "BOOL" } };
@@ -137,10 +135,10 @@ Var BinExpr::evaluate_mul()
 	VariableType right_type = m_right->get_type();
 	
 	if ( left_type == VariableType::BOOL || right_type == VariableType::BOOL )
-		throw UnappropriateType { std::string{ "BOOL" } };
+		throw UnappropriateType { std::string { "BOOL" } };
 
 	if ( left_type == VariableType::STRING || right_type == VariableType::STRING )
-		throw UnappropriateType { std::string{ "STRING" } };
+		throw UnappropriateType { std::string { "STRING" } };
 
 	return ( *m_left->get_value() ) * ( *m_right->get_value() );
 }

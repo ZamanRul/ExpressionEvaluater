@@ -28,6 +28,8 @@ std::string type_to_string( VariableType _type );
 enum class Operator : short
 {
 	TAG,
+	POS,
+	NEG,
 	PLUS,
 	MINUS,
 	MUL,

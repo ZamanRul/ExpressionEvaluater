@@ -11,7 +11,7 @@ TypeMismatch::TypeMismatch( const std::string& _type1, const std::string& _type2
 {
 	using namespace boost;
 
-	m_message = str( format{ "Type mismatch between %1% and %2%" }
+	m_message = str( format { "Type mismatch between %1% and %2%" }
 		% _type1
 		% _type2
 	);

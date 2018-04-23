@@ -39,6 +39,10 @@ int main()
 		{
 			std::cout << "Exception! " << _exception.what() << std::endl;
 		}
+		catch (...)
+		{
+			std::cout << "Unknown exception!" << std::endl;
+		}
 	}
 
 	return 0;

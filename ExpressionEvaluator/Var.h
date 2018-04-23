@@ -52,14 +52,21 @@ public:
 		
 	std::string to_string();
 
-
+	Var operator+();
+	Var operator-();
 	Var operator+( const Var& _rhs );
 	Var operator-( const Var& _rhs );
 	Var operator*( const Var& _rhs );
 	Var operator/( const Var& _rhs );
 	Var operator%( const Var& _rhs );
 
+
 private:
+
+	Var oper( Operator _operator, const Var& _child );
+
+	template< typename T >
+	Var oper_internal( Operator _operator, const Var& _child );
 
 	template< typename left_type, typename right_type >
 	auto oper_internal( Operator _operator, const Var& _left, const Var& _right )
@@ -73,6 +80,9 @@ private:
 	Var oper_right( Operator _operator, const Var& _left, const Var& _right );
 
 	Var oper( Operator _operator, const Var& _left, const Var& _right );
+
+	template< typename T>
+	Var unary_operations( Operator _operator, const T& _child );
 
 	template< typename T >
 	Var arith_operations( Operator _operator, const T& _left, const T& _right );

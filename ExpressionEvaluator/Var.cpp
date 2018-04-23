@@ -4,6 +4,8 @@
 #include <type_traits>
 #include <boost/lexical_cast.hpp>
 
+#pragma warning(disable : 4146)
+
 Var::Var() :
 	m_type{ VariableType::UNDEFINED },
 	m_value { 0 }
@@ -72,11 +74,21 @@ std::string Var::to_string()
 		return std::string { "UNDEFINED" };
 
 	if ( m_type == VariableType::STRING )
-		return str( format( "\"%1%\"" )
+		return str( format { "\"%1%\"" }
 			% boost::get< std::string >( m_value )
 		);
 
 	return boost::lexical_cast< std::string >( m_value );
+}
+
+Var Var::operator+()
+{
+	return oper( Operator::POS, *this );
+}
+
+Var Var::operator-()
+{
+	return oper( Operator::NEG, *this );
 }
 
 Var Var::operator+( const Var& _rhs )
@@ -102,6 +114,22 @@ Var Var::operator/( const Var& _rhs )
 Var Var::operator%( const Var& _rhs )
 {
 	return oper( Operator::MOD, *this, _rhs );
+}
+
+template< typename T>
+Var Var::unary_operations( Operator _operator, const T& _child )
+{
+	switch ( _operator )
+	{
+	case Operator::POS:
+		return Var { +_child };
+
+	case Operator::NEG:
+		return Var { -_child };
+
+	}
+
+	throw OperationNSY { std::string { "Unknown unary operator" } };
 }
 
 
@@ -135,9 +163,14 @@ Var Var::arith_operations_only_int( Operator _operator, const T& _left, const T&
 			return Var { _left % _right };
 	}
 
-	throw OperationNSY{ std::string{ "Unknown arithmetic's operator" } };
+	throw OperationNSY{ std::string { "Unknown arithmetic's operator" } };
 }
 
+template< typename T >
+Var Var::oper_internal( Operator _operator, const Var& _child )
+{
+	return unary_operations( _operator, get_as< T, T >( _child ) );
+}
 
 template< typename left_type, typename right_type >
 auto Var::oper_internal( Operator _operator, const Var& _left, const Var& _right )
@@ -215,6 +248,32 @@ Var Var::oper( Operator _operator, const Var& _left, const Var& _right )
 	throw UnappropriateType { type_to_string( _left.get_type() ) };
 }
 
+Var Var::oper( Operator _operator, const Var& _child )
+{
+	switch ( _child.get_type() )
+	{
+	case VariableType::BOOL:
+		return oper_internal< bool >( _operator, _child );
+	case VariableType::SINT:
+		return oper_internal< short int >( _operator, _child );
+	case VariableType::USINT:
+		return oper_internal< unsigned short int >( _operator, _child );
+	case VariableType::INT:
+		return oper_internal< int >( _operator, _child );
+	case VariableType::UINT:
+		return oper_internal< unsigned int >( _operator, _child );
+	case VariableType::LINT:
+		return oper_internal< long int >( _operator, _child );
+	case VariableType::ULINT:
+		return oper_internal< unsigned long int >( _operator, _child );
+	case VariableType::REAL:
+		return oper_internal< float >( _operator, _child );
+	case VariableType::LREAL:
+		return oper_internal< double >( _operator, _child );
+	}
+
+	throw UnappropriateType{ type_to_string( _child.get_type() ) };
+}
 
 bool MathHelper::is_zero( VarPtr _ptr )
 {

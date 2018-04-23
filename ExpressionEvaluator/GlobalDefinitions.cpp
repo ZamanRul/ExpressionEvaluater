@@ -116,6 +116,12 @@ std::string operator_to_string( Operator _operator )
 		case Operator::TAG:
 			return std::string { "TAG: " };
 
+		case Operator::POS:
+			return std::string { "+" };
+
+		case Operator::NEG:
+			return std::string { "-" };
+
 		case Operator::PLUS:
 			return std::string { "+" };
 
