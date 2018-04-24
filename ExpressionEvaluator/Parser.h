@@ -70,7 +70,8 @@ public:
 
 		bool_const = bool_[ _val = boost::phoenix::bind( []( bool i ) { return ExprFactory::create_const( i ); }, qi::_1 ) ];
 
-		string_const = ( '"' >> qi::no_skip[ *~char_( '"' ) ] >> '"' )[ _val = boost::phoenix::bind( []( std::vector< char > i ) { return ExprFactory::create_const( std::string { i.begin(), i.end() } ); }, qi::_1 ) ];
+		string_const = ( '"' >> qi::no_skip[ *~char_( '"' ) ] >> '"' )[ _val = boost::phoenix::bind( []( std::vector< char > i ) { return ExprFactory::create_const( std::string { i.begin(), i.end() } ); }, qi::_1 ) ] |
+						( '\'' >> qi::no_skip[ *~char_( '\'' ) ] >> '\'' )[ _val = boost::phoenix::bind( []( std::vector< char > i ) { return ExprFactory::create_const( std::string { i.begin(), i.end() } ); }, qi::_1 ) ];
 
 		const_literal = number_const[ _val = _1 ] |
 						bool_const[ _val = _1 ] |

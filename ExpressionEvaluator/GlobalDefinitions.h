@@ -19,6 +19,9 @@ enum class VariableType : short int
 
 VariableType get_variable_type( const std::type_info& _type_info );
 
+bool is_boolean( VariableType _type );
+bool is_string( VariableType _type );
+
 bool is_integer( VariableType _type );
 bool is_floating( VariableType _type );
 

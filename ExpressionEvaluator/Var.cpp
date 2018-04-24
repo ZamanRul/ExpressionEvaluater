@@ -66,17 +66,24 @@ VariableType Var::get_type() const
 	return m_type;
 }
 
-std::string Var::to_string()
+std::string Var::to_string( bool _quotation_marks )
 {
 	using namespace boost;
 
 	if ( m_type == VariableType::UNDEFINED )
 		return std::string { "UNDEFINED" };
 
+	if ( m_type == VariableType::BOOL)
+		return std::string { get< bool >( m_value ) ? "true" : "false" };
+
 	if ( m_type == VariableType::STRING )
-		return str( format { "\"%1%\"" }
+	{
+		auto specification_string = _quotation_marks ? "\"%1%\"" : "%1%";
+
+		return str( format { specification_string }
 			% boost::get< std::string >( m_value )
 		);
+	}
 
 	return boost::lexical_cast< std::string >( m_value );
 }

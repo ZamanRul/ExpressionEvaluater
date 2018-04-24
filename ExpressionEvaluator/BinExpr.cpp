@@ -87,24 +87,17 @@ Var BinExpr::evaluate_plus()
 	VariableType left_type = m_left->get_type();
 	VariableType right_type = m_right->get_type();
 
+	if ( is_boolean( left_type ) || is_boolean( right_type ) )
+		throw UnappropriateType { std::string { "BOOL" } };
 
-	if ( ( left_type == VariableType::STRING && right_type != VariableType::STRING ) ||
-		( left_type != VariableType::STRING && right_type == VariableType::STRING ) )
+	if ( is_string( left_type ) || is_string( right_type ) )
 	{
-		throw TypeMismatch { type_to_string( left_type ), type_to_string( right_type ) };
-	}
-
-	if ( left_type == VariableType::STRING && right_type == VariableType::STRING )
-	{
-		auto left_string = m_left->get_value()->get_value< std::string >();
-		auto right_string = m_right->get_value()->get_value< std::string >();
+		std::string left_string = m_left->get_value()->to_string( false );
+		std::string right_string = m_right->get_value()->to_string( false );
 
 		return Var { left_string.append( right_string ) };
 	}
-
-	if ( left_type == VariableType::BOOL || right_type == VariableType::BOOL )
-		throw UnappropriateType { std::string { "BOOL" } };
-
+	
 	return *m_left->get_value() + *m_right->get_value();
 }
 

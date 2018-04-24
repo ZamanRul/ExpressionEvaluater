@@ -50,7 +50,7 @@ public:
 
 	VariableType get_type() const;
 		
-	std::string to_string();
+	std::string to_string( bool _quotation_marks = true );
 
 	Var operator+();
 	Var operator-();

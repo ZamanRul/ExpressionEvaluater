@@ -79,6 +79,16 @@ std::string type_to_string( VariableType _type )
 	}
 }
 
+bool is_boolean( VariableType _type )
+{
+	return _type == VariableType::BOOL;
+}
+
+bool is_string( VariableType _type )
+{
+	return _type == VariableType::STRING;
+}
+
 bool is_integer( VariableType _type )
 {
 	switch ( _type )
