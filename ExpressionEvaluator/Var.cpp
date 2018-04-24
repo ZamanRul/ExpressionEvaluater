@@ -88,6 +88,51 @@ std::string Var::to_string( bool _quotation_marks )
 	return boost::lexical_cast< std::string >( m_value );
 }
 
+Var Var::operator!()
+{
+	return oper( Operator::NOT, *this );
+}
+
+Var Var::operator||( const Var& _rhs )
+{
+	return oper( Operator::OR, *this, _rhs );
+}
+
+Var Var::operator&&( const Var& _rhs )
+{
+	return oper( Operator::AND, *this, _rhs );
+}
+
+Var Var::operator==( const Var& _rhs )
+{
+	return oper( Operator::EQ, *this, _rhs );
+}
+
+Var Var::operator!=( const Var& _rhs )
+{
+	return oper( Operator::NEQ, *this, _rhs );
+}
+
+Var Var::operator<( const Var& _rhs )
+{
+	return oper( Operator::LESS, *this, _rhs );
+}
+
+Var Var::operator<=( const Var& _rhs )
+{
+	return oper( Operator::LESS_EQ, *this, _rhs );
+}
+
+Var Var::operator>( const Var& _rhs )
+{
+	return oper( Operator::GREATER, *this, _rhs );
+}
+
+Var Var::operator>=( const Var& _rhs )
+{
+	return oper( Operator::GREATER_EQ, *this, _rhs );
+}
+
 Var Var::operator+()
 {
 	return oper( Operator::POS, *this );
@@ -128,6 +173,9 @@ Var Var::unary_operations( Operator _operator, const T& _child )
 {
 	switch ( _operator )
 	{
+	case Operator::NOT:
+		return Var { !_child };
+
 	case Operator::POS:
 		return Var { +_child };
 
@@ -162,6 +210,39 @@ Var Var::arith_operations( Operator _operator, const T& _left, const T& _right )
 }
 
 template< typename T >
+Var Var::boolean_operations( Operator _operator, const T& _left, const T& _right )
+{
+	switch ( _operator )
+	{
+	case Operator::OR:
+		return Var { _left || _right };
+
+	case Operator::AND:
+		return Var { _left && _right };
+
+	case Operator::EQ:
+		return Var { _left == _right };
+
+	case Operator::NEQ:
+		return Var { _left != _right };
+
+	case Operator::LESS:
+		return Var { _left < _right };
+
+	case Operator::LESS_EQ:
+		return Var { _left <= _right };
+
+	case Operator::GREATER:
+		return Var { _left > _right };
+
+	case Operator::GREATER_EQ:
+		return Var { _left >= _right };		
+	}
+
+	throw OperationNSY { std::string{ "Unknown boolean's operator" } };
+}
+
+template< typename T >
 Var Var::arith_operations_only_int( Operator _operator, const T& _left, const T& _right )
 {
 	switch ( _operator )
@@ -185,7 +266,9 @@ auto Var::oper_internal( Operator _operator, const Var& _left, const Var& _right
 {
 	using common_type = typename std::common_type< left_type, right_type >::type;
 
-	if ( is_only_integral_operator( _operator ) )
+	if ( is_boolean_operator( _operator ) )
+		return boolean_operations( _operator, get_as< common_type, left_type >( _left ), get_as< common_type, right_type >( _right ) );
+	else if ( is_only_integral_arithmetic_operator( _operator ) )
 		return arith_operations_only_int( _operator, get_as< common_type, left_type >( _left ), get_as< common_type, right_type >( _right ) );
 	else
 		return arith_operations( _operator, get_as< common_type, left_type >( _left ), get_as< common_type, right_type >( _right ) );
@@ -197,7 +280,10 @@ auto Var::oper_internal( Operator _operator, const Var& _left, const Var& _right
 {
 	using common_type = typename std::common_type< left_type, right_type >::type;
 
-	return arith_operations( _operator, get_as< common_type, left_type >( _left ), get_as< common_type, right_type >( _right ) );
+	if ( is_boolean_operator( _operator ) )
+		return boolean_operations( _operator, get_as< common_type, left_type >( _left ), get_as< common_type, right_type >( _right ) );
+	else
+		return arith_operations( _operator, get_as< common_type, left_type >( _left ), get_as< common_type, right_type >( _right ) );
 }
 
 template< typename left_type >

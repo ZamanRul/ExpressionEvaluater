@@ -23,6 +23,8 @@ public:
 protected:
 
 	Var evaluate_tag();
+
+	Var evaluate_not();
 	Var evaluate_pos();
 	Var evaluate_neg();
 	

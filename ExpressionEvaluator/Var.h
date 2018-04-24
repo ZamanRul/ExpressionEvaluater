@@ -52,6 +52,17 @@ public:
 		
 	std::string to_string( bool _quotation_marks = true );
 
+	Var operator!();
+	Var operator&&( const Var& _rhs );
+	Var operator||( const Var& _rhs );
+
+	Var operator==( const Var& _rhs );
+	Var operator!=( const Var& _rhs );
+	Var operator<( const Var& _rhs );
+	Var operator<=( const Var& _rhs );
+	Var operator>( const Var& _rhs );
+	Var operator>=( const Var& _rhs );
+
 	Var operator+();
 	Var operator-();
 	Var operator+( const Var& _rhs );
@@ -89,6 +100,9 @@ private:
 
 	template< typename T >
 	Var arith_operations_only_int( Operator _operator, const T& _left, const T& _right );
+
+	template< typename T >
+	Var boolean_operations( Operator _operator, const T& _left, const T& _right );
 
 private:
 

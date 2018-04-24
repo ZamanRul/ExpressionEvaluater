@@ -31,6 +31,15 @@ std::string type_to_string( VariableType _type );
 enum class Operator : short
 {
 	TAG,
+	NOT,
+	OR,
+	AND,
+	EQ,
+	NEQ,
+	LESS,
+	LESS_EQ,
+	GREATER,
+	GREATER_EQ,
 	POS,
 	NEG,
 	PLUS,
@@ -42,4 +51,6 @@ enum class Operator : short
 
 std::string operator_to_string( Operator _operator );
 
-bool is_only_integral_operator( Operator _operator );
+bool is_boolean_operator( Operator _operator );
+
+bool is_only_integral_arithmetic_operator( Operator _operator );

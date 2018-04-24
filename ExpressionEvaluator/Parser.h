@@ -40,11 +40,24 @@ public:
 		qi::char_type char_;
 		qi::real_parser< double, strict_real_policies< double > > real_parser;
 
+		logical_or_op.add( "||", Operator::OR );
+
+		logical_and_op.add( "&&", Operator::AND );
+
+		equality_op.add( "==", Operator::EQ );
+		equality_op.add( "!=", Operator::NEQ );
+
+		relational_op.add( "<", Operator::LESS );
+		relational_op.add( "<=", Operator::LESS_EQ );
+		relational_op.add( ">", Operator::GREATER );
+		relational_op.add( ">=", Operator::GREATER_EQ );
+
 		additive_op.add( "+", Operator::PLUS );
 		additive_op.add( "-", Operator::MINUS );
 
 		unary_op.add( "+", Operator::POS );
 		unary_op.add( "-", Operator::NEG );
+		unary_op.add( "!", Operator::NOT );
 
 		multiplicative_op.add( "*", Operator::MUL );
 		multiplicative_op.add( "/", Operator::DIV );
@@ -78,7 +91,23 @@ public:
 						string_const[ _val = _1 ];
 
 
-		expression = additive_expr.alias();
+		expression = logical_or_expr.alias();
+
+		logical_or_expr = logical_and_expr[ _val = _1 ] >> 
+						*( logical_or_op > logical_and_expr )[ _val = boost::phoenix::bind( []( Operator _operator, IExprPtr _left, IExprPtr _right ) {
+																		return ExprFactory::create_binary( _operator, _left, _right ); }, qi::_1, _val, qi::_2 ) ];
+
+		logical_and_expr = equality_expr[ _val = _1 ] >> 
+						*( logical_and_op > equality_expr )[ _val = boost::phoenix::bind( []( Operator _operator, IExprPtr _left, IExprPtr _right ) {
+																		return ExprFactory::create_binary( _operator, _left, _right ); }, qi::_1, _val, qi::_2 ) ];
+
+		equality_expr =	relational_expr[ _val = _1] >>
+						*( equality_op > relational_expr )[ _val = boost::phoenix::bind( []( Operator _operator, IExprPtr _left, IExprPtr _right ) {
+																		return ExprFactory::create_binary( _operator, _left, _right); }, qi::_1, _val, qi::_2 ) ];
+
+		relational_expr = additive_expr[ _val = _1] >>
+			*( relational_op > additive_expr )[ _val = boost::phoenix::bind( []( Operator _operator, IExprPtr _left, IExprPtr _right ) {
+																		return ExprFactory::create_binary( _operator, _left, _right ); }, qi::_1, _val, qi::_2 ) ];
 
 		additive_expr = multiplicative_expr[ _val = _1 ] >>
 						*( additive_op > multiplicative_expr ) [ _val = boost::phoenix::bind( []( Operator _operator, IExprPtr _left, IExprPtr _right ) {
@@ -102,6 +131,10 @@ public:
 	void enable_debug()
 	{
 		expression.name( "expression" );	
+		logical_or_expr.name( "logical_or_expr" );
+		logical_and_expr.name( "logical_and_expr" );
+		equality_expr.name( "equality_expr" );
+		relational_expr.name( "relational_expr" );
 		additive_expr.name( "additive_expr" );
 		multiplicative_expr.name( "multiplicative_expr" );
 		unary_expr.name( "unary_expr" );
@@ -122,6 +155,10 @@ public:
 		sint_const.name( "sint_const" );
 						
 		qi::debug( expression );
+		qi::debug( logical_or_expr );
+		qi::debug( logical_and_expr );
+		qi::debug( equality_expr );
+		qi::debug( relational_expr );
 		qi::debug( additive_expr );
 		qi::debug( multiplicative_expr );
 		qi::debug( unary_expr );
@@ -140,6 +177,10 @@ public:
 		qi::debug( sint_const );
 	}
 	
+	qi::symbols< char, Operator > logical_or_op;
+	qi::symbols< char, Operator > logical_and_op;
+	qi::symbols< char, Operator > equality_op;
+	qi::symbols< char, Operator > relational_op;
 	qi::symbols< char, Operator > additive_op;
 	qi::symbols< char, Operator > multiplicative_op;
 	qi::symbols< char, Operator > unary_op;
@@ -160,6 +201,10 @@ public:
 
 	qi::rule< Iterator, IExprPtr, Skipper > const_literal;
 
+	qi::rule< Iterator, IExprPtr, Skipper > logical_or_expr;
+	qi::rule< Iterator, IExprPtr, Skipper >  logical_and_expr;
+	qi::rule< Iterator, IExprPtr, Skipper >  equality_expr;
+	qi::rule< Iterator, IExprPtr, Skipper >  relational_expr;
 	qi::rule< Iterator, IExprPtr, Skipper > additive_expr;
 	qi::rule< Iterator, IExprPtr, Skipper > multiplicative_expr;
 	qi::rule< Iterator, IExprPtr, Skipper > primary_expr;

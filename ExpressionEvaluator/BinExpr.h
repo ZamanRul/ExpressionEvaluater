@@ -21,6 +21,15 @@ public:
 
 protected:
 
+	Var evaluate_or();
+	Var evaluate_and();
+	Var evaluate_equal();
+	Var evaluate_not_equal();
+	Var evaluate_less();
+	Var evaluate_less_equal();
+	Var evaluate_greater();
+	Var evaluate_greater_equal();
+
 	Var evaluate_plus();
 	Var evaluate_minus();
 	Var evaluate_mul();

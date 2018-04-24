@@ -126,6 +126,33 @@ std::string operator_to_string( Operator _operator )
 		case Operator::TAG:
 			return std::string { "TAG: " };
 
+		case Operator::NOT:
+			return std::string { "!" };
+
+		case Operator::OR:
+			return std::string { "||" };
+
+		case Operator::AND:
+			return std::string { "&&" };
+
+		case Operator::EQ:
+			return std::string { "==" };
+
+		case Operator::NEQ:
+			return std::string { "!=" };
+
+		case Operator::LESS:
+			return std::string { "<" };
+
+		case Operator::LESS_EQ:
+			return std::string { "<=" };
+
+		case Operator::GREATER:
+			return std::string { ">" };
+
+		case Operator::GREATER_EQ:
+			return std::string { ">=" };
+			
 		case Operator::POS:
 			return std::string { "+" };
 
@@ -152,7 +179,27 @@ std::string operator_to_string( Operator _operator )
 	}
 }
 
-bool is_only_integral_operator( Operator _operator )
+bool is_boolean_operator( Operator _operator )
+{
+	switch ( _operator )
+	{
+	case Operator::NOT:
+	case Operator::AND:
+	case Operator::OR:
+	case Operator::EQ:
+	case Operator::NEQ:
+	case Operator::LESS:
+	case Operator::LESS_EQ:
+	case Operator::GREATER:
+	case Operator::GREATER_EQ:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+bool is_only_integral_arithmetic_operator( Operator _operator )
 {
 	switch ( _operator )
 	{

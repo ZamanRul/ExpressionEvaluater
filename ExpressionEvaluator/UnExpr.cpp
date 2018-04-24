@@ -44,6 +44,10 @@ void UnExpr::evaluate()
 		result = evaluate_tag();
 		break;
 
+	case Operator::NOT:
+		result = evaluate_not();
+		break;
+
 	case Operator::POS:
 		result = evaluate_pos();
 		break;
@@ -115,6 +119,19 @@ Var UnExpr::evaluate_tag()
 	default:
 		throw UnappropriateType { std::string{ "UNDEFINED" } };
 	}
+}
+
+Var UnExpr::evaluate_not()
+{
+	if ( m_operator != Operator::NOT )
+		throw OperationNSY { std::string { "Operator mismatch" } };
+
+	VariableType child_type = m_child->get_type();
+
+	if ( is_string( child_type ) )
+		throw UnappropriateType { std::string { "STRING" } };
+
+	return !( *m_child->get_value() );
 }
 
 Var UnExpr::evaluate_pos()
